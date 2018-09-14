@@ -5,6 +5,8 @@
 #include "Engine/World.h"
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "PhysicsEngine/PhysicsHandleComponent.h"
+#include "Components/InputComponent.h"
 #include "DrawDebugHelpers.h"
 #include "Grabber.generated.h"
 
@@ -29,6 +31,13 @@ public:
 private:
 	//how far should the draw debugger reach.
 	float Reach = 100.f;
-		
 	
+	UPhysicsHandleComponent* PhysicsHandle = nullptr;
+
+	UInputComponent* InputComponent = nullptr;
+	
+	///Ray-cast and grab whats in reach.
+
+	void Grab();
+
 };

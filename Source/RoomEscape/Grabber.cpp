@@ -24,10 +24,32 @@ void UGrabber::BeginPlay()
 
 	// ...
 	UE_LOG(LogTemp, Warning, TEXT("GRABBER REPORTING FOR DUTY"));
+
+	///Look for attached Physics Handle
+	PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
+	if (PhysicsHandle)
+	{
+		///Physics handle found
+	}
+	else {
+	UE_LOG(LogTemp, Error, TEXT("Physics Handle not found on %s"), *(GetOwner()->GetName()))
+	}
     
-	
+	InputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
+	if (InputComponent) {
+		InputComponent->BindAction("Grab", IE_Pressed, this, &UGrabber::Grab);
+	}
+	else {
+		UE_LOG(LogTemp, Error, TEXT("Input Component not found on %s"), *(GetOwner()->GetName()))
+	}
 }
 
+
+void UGrabber::Grab()
+{
+///Do something
+	UE_LOG(LogTemp, Warning, TEXT(" was grabbed"))
+}
 
 // Called every frame
 void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -42,26 +64,40 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	 OUT	PlayerViewPointLocation, 
 	 OUT	PlayerViewPointRotation);
 
-	//Log
-	/*UE_LOG(LogTemp, Warning, TEXT("Location: %s, Rotation: %s"), 
-		*PlayerViewPointLocation.ToString(), 
-		*PlayerViewPointRotation.ToString()
-	)*/
+	
 	FVector LineTraceEnd = PlayerViewPointLocation + PlayerViewPointRotation.Vector() * Reach;
-	//Draw a red trace in the world to visualize
-	DrawDebugLine(
-		GetWorld(),
+	////Draw a red trace in the world to visualize
+	//DrawDebugLine(
+	//	GetWorld(),
+	//	PlayerViewPointLocation,
+	//	LineTraceEnd,
+	//	FColor(255,0,0),
+	//	false,
+	//	0.f,
+	//	0.f,
+	//	10.f
+	//);
+
+	///Setup query paramters
+	FCollisionQueryParams TraceParameters(FName(TEXT("")), false, GetOwner());
+
+	FHitResult Hit;
+
+	///Ray-casting out to reach distance
+	GetWorld()->LineTraceSingleByObjectType(
+		OUT Hit,
 		PlayerViewPointLocation,
 		LineTraceEnd,
-		FColor(255,0,0),
-		false,
-		0.f,
-		0.f,
-		10.f
+		FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody),
+		TraceParameters
 	);
-
-	//Ray-casting out to reach distance
 	//then check what we hit.
+
+	AActor* HitObject = Hit.GetActor();
+
+	if (HitObject) {
+		UE_LOG(LogTemp, Warning, TEXT("Line Trace Hit: %s"), *(HitObject->GetName()));
+	}
 
 }
 
