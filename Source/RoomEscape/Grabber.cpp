@@ -2,8 +2,6 @@
 
 
 #include "Grabber.h"
-
-
 #define OUT
 
 // Sets default values for this component's properties
@@ -16,15 +14,20 @@ UGrabber::UGrabber()
 	// ...
 }
 
-
 // Called when the game starts
 void UGrabber::BeginPlay()
 {
 	Super::BeginPlay();
+    
+	///Look for the physicshandle.
+	FindPhysicsHandleComponent();
+    
+	///Look for InputComponent.
+	FindInputComponent();
+	
+}
 
-	// ...
-	UE_LOG(LogTemp, Warning, TEXT("GRABBER REPORTING FOR DUTY"));
-
+void UGrabber::FindPhysicsHandleComponent() {
 	///Look for attached Physics Handle
 	PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
 	if (PhysicsHandle)
@@ -32,23 +35,39 @@ void UGrabber::BeginPlay()
 		///Physics handle found
 	}
 	else {
-	UE_LOG(LogTemp, Error, TEXT("Physics Handle not found on %s"), *(GetOwner()->GetName()))
+		UE_LOG(LogTemp, Error, TEXT("Physics Handle not found on %s"), *(GetOwner()->GetName()))
 	}
-    
+
+}
+
+void UGrabber::FindInputComponent() {
 	InputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
 	if (InputComponent) {
 		InputComponent->BindAction("Grab", IE_Pressed, this, &UGrabber::Grab);
+		InputComponent->BindAction("Grab", IE_Released, this, &UGrabber::Release);
 	}
 	else {
 		UE_LOG(LogTemp, Error, TEXT("Input Component not found on %s"), *(GetOwner()->GetName()))
 	}
 }
 
-
 void UGrabber::Grab()
 {
 ///Do something
 	UE_LOG(LogTemp, Warning, TEXT(" was grabbed"))
+
+	/// Try and reach any actors with physics body collision channel set
+	GetFirstPhysicsBodyInReach();
+
+    ///If we hit something then attach a physics handle
+	//TODO attach physics handle
+}
+
+void UGrabber::Release()
+{
+	///Do something
+	UE_LOG(LogTemp, Warning, TEXT(" was Released"))
+	// TODO release physics handle
 }
 
 // Called every frame
@@ -56,27 +75,21 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	///TODO if the physics handle is attatched move the object we're holding
+}
 
+
+const FHitResult UGrabber::GetFirstPhysicsBodyInReach()
+{
 	// Get player viewPoint
 	FVector PlayerViewPointLocation;
 	FRotator PlayerViewPointRotation;
 	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(
-	 OUT	PlayerViewPointLocation, 
-	 OUT	PlayerViewPointRotation);
+		OUT	PlayerViewPointLocation,
+		OUT	PlayerViewPointRotation);
 
-	
+
 	FVector LineTraceEnd = PlayerViewPointLocation + PlayerViewPointRotation.Vector() * Reach;
-	////Draw a red trace in the world to visualize
-	//DrawDebugLine(
-	//	GetWorld(),
-	//	PlayerViewPointLocation,
-	//	LineTraceEnd,
-	//	FColor(255,0,0),
-	//	false,
-	//	0.f,
-	//	0.f,
-	//	10.f
-	//);
 
 	///Setup query paramters
 	FCollisionQueryParams TraceParameters(FName(TEXT("")), false, GetOwner());
@@ -98,6 +111,5 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	if (HitObject) {
 		UE_LOG(LogTemp, Warning, TEXT("Line Trace Hit: %s"), *(HitObject->GetName()));
 	}
-
+	return FHitResult();
 }
-

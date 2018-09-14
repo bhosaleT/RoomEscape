@@ -7,7 +7,6 @@
 #include "Components/ActorComponent.h"
 #include "PhysicsEngine/PhysicsHandleComponent.h"
 #include "Components/InputComponent.h"
-#include "DrawDebugHelpers.h"
 #include "Grabber.generated.h"
 
 
@@ -30,7 +29,7 @@ public:
 
 private:
 	//how far should the draw debugger reach.
-	float Reach = 100.f;
+	float Reach = 200.f;
 	
 	UPhysicsHandleComponent* PhysicsHandle = nullptr;
 
@@ -39,5 +38,14 @@ private:
 	///Ray-cast and grab whats in reach.
 
 	void Grab();
+
+	void FindPhysicsHandleComponent();
+
+	void FindInputComponent();
+
+	void Release();
+
+	//Return hit for first physics body in reach.
+	const FHitResult GetFirstPhysicsBodyInReach();
 
 };
