@@ -14,7 +14,6 @@ UOpenDoorRightAngle::UOpenDoorRightAngle()
 	// ...
 }
 
-
 // Called when the game starts
 void UOpenDoorRightAngle::BeginPlay()
 {
@@ -28,18 +27,6 @@ void UOpenDoorRightAngle::BeginPlay()
 
 }
 
-void UOpenDoorRightAngle::OpenDoor()
-{
-	// set the door rotation
-	Owner->SetActorRotation(FRotator(0.0f, openAngle, 0.0f));
-}
-
-void UOpenDoorRightAngle::CloseDoor()
-{
-	// set the door rotation
-	Owner->SetActorRotation(FRotator(0.0f, closeAngle, 0.0f));
-}
-
 // Called every frame
 void UOpenDoorRightAngle::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
@@ -51,13 +38,12 @@ void UOpenDoorRightAngle::TickComponent(float DeltaTime, ELevelTick TickType, FA
 	//Poll the trigger volume
 	if (GetTotalMassOfActorsOnPlate() > weightThreshHold) //TODO MAKE INTO A PARAMTERE
 	{
-		OpenDoor();
-		LastDoorOpenTime = GetWorld()->GetTimeSeconds();
+		OnOpen.Broadcast();
+	
 	}
-
-	//Check if its time to close the door.
-	if (GetWorld()->GetTimeSeconds() - LastDoorOpenTime > DoorCloseDelay) {
-		CloseDoor();
+	else
+	{
+		OnClose.Broadcast();
 	}
 }
 
@@ -66,7 +52,7 @@ float UOpenDoorRightAngle::GetTotalMassOfActorsOnPlate()
 	float TotalMass = 0.0f;
 
 	TArray<AActor*> OverLappingActors;
-	if (!PressurePlate) { return; }
+	if (!PressurePlate) { return TotalMass; }
 	//find all the overlapping actors and then iterate through them adding their weight.
 	PressurePlate->GetOverlappingActors(OUT OverLappingActors);
 	for (const auto& Actor : OverLappingActors)
