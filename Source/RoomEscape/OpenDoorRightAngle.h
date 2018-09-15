@@ -52,6 +52,7 @@ private:
 
 	float GetTotalMassOfActorsOnPlate();
 
+	UPROPERTY(EditAnywhere)
 	float weightThreshHold;
 
 	AActor* Owner;

@@ -30,7 +30,7 @@ public:
 
 private:
 	//how far should the draw debugger reach.
-	float Reach = 200.f;
+	float Reach = 100.f;
 	
 	UPhysicsHandleComponent* PhysicsHandle = nullptr;
 
