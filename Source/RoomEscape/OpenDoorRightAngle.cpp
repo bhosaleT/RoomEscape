@@ -1,10 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "OpenDoorRightAngle.h"
-#include "Engine/World.h"
-#include "GameFramework/Actor.h"
 
 
+#define OUT
 // Sets default values for this component's properties
 UOpenDoorRightAngle::UOpenDoorRightAngle()
 {
@@ -22,7 +21,6 @@ void UOpenDoorRightAngle::BeginPlay()
 	Super::BeginPlay();
 	Owner = GetOwner();
 
-	ActorThatOpens = GetWorld()->GetFirstPlayerController()->GetPawn();
 }
 
 void UOpenDoorRightAngle::OpenDoor()
@@ -42,9 +40,12 @@ void UOpenDoorRightAngle::TickComponent(float DeltaTime, ELevelTick TickType, FA
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+
+
 	// ...
 	//Poll the trigger volume
-	if (PressurePlate->IsOverlappingActor(ActorThatOpens)) {
+	if (GetTotalMassOfActorsOnPlate() > weightThreshHold) //TODO MAKE INTO A PARAMTERE
+	{
 		OpenDoor();
 		LastDoorOpenTime = GetWorld()->GetTimeSeconds();
 	}
@@ -55,3 +56,19 @@ void UOpenDoorRightAngle::TickComponent(float DeltaTime, ELevelTick TickType, FA
 	}
 }
 
+float UOpenDoorRightAngle::GetTotalMassOfActorsOnPlate()
+{
+	float TotalMass = 0.0f;
+
+	TArray<AActor*> OverLappingActors;
+	//find all the overlapping actors and then iterate through them adding their weight.
+	PressurePlate->GetOverlappingActors(OUT OverLappingActors);
+	for (const auto& Actor : OverLappingActors)
+	{
+		TotalMass += Actor->FindComponentByClass<UPrimitiveComponent>()->GetMass();
+		UE_LOG(LogTemp, Warning, TEXT("%s on pressure plate"), *Actor->GetName() )
+	}
+
+
+	return TotalMass;
+}

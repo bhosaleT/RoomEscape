@@ -5,6 +5,9 @@
 #include "CoreMinimal.h"
 #include "Engine/TriggerVolume.h"
 #include "Components/ActorComponent.h"
+#include "Engine/World.h"
+#include "Components/PrimitiveComponent.h"
+#include "GameFramework/Actor.h"
 #include "OpenDoorRightAngle.generated.h"
 
 
@@ -28,6 +31,8 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	
+
 		
 private:
 
@@ -45,7 +50,10 @@ private:
 
 	float LastDoorOpenTime;
 
+	float GetTotalMassOfActorsOnPlate();
+
+	float weightThreshHold;
+
 	AActor* Owner;
-	AActor* ActorThatOpens;
 	
 };
