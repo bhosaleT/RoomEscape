@@ -55,6 +55,6 @@ private:
 	UPROPERTY(EditAnywhere)
 	float weightThreshHold;
 
-	AActor* Owner;
+	AActor* Owner = nullptr;
 	
 };
